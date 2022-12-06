@@ -20,6 +20,7 @@
     "ghcr.io/trxcllnt/devcontainer-features/ninja:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
@@ -31,6 +32,7 @@
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
+    "ghcr.io/trxcllnt/devcontainer-features/cuda",
   ],
   "customizations": {
     "vscode": {
@@ -41,6 +43,7 @@
         "ms-vscode.cpptools",
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "nvidia.nsight-vscode-edition",
         "llvm-vs-code-extensions.vscode-clangd"
       ],
       "settings": {
@@ -51,6 +54,12 @@
         "C_Cpp.intelliSenseEngine": "Disabled",
         "C_Cpp.configurationWarnings": "Disabled",
         "C_Cpp.autoAddFileAssociations": false,
+        "files.associations": {
+          "*.cu": "cuda-cpp",
+          "*.cuh": "cuda-cpp",
+          "**/libcudacxx/include/**/*": "cpp",
+          "**/libcudacxx-src/include/**/*": "cpp"
+        },
         "python.defaultInterpreterPath": "/opt/conda/bin/python",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
