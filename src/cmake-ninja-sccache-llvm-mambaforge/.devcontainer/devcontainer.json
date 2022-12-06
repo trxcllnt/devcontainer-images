@@ -1,0 +1,85 @@
+{
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": "."
+  },
+  "remoteUser": "coder",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:1": {
+      "uid": "1000",
+      "gid": "1000",
+      "username": "coder"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": "true"
+    },
+    "ghcr.io/devcontainers/features/git-lfs:1": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/python:1": "none",
+    "ghcr.io/trxcllnt/devcontainer-features/cmake:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/ninja:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
+  },
+  "overrideFeatureInstallOrder": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/devcontainers/features/git",
+    "ghcr.io/devcontainers/features/git-lfs",
+    "ghcr.io/devcontainers/features/github-cli",
+    "ghcr.io/devcontainers/features/python",
+    "ghcr.io/trxcllnt/devcontainer-features/cmake",
+    "ghcr.io/trxcllnt/devcontainer-features/ninja",
+    "ghcr.io/trxcllnt/devcontainer-features/sccache",
+    "ghcr.io/trxcllnt/devcontainer-features/llvm",
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "twxs.cmake",
+        "xaver.clang-format",
+        "cschlosser.doxdocgen",
+        "ms-vscode.cpptools",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "nvidia.nsight-vscode-edition",
+        "llvm-vs-code-extensions.vscode-clangd"
+      ],
+      "settings": {
+        "C_Cpp.vcpkg.enabled": false,
+        "C_Cpp.formatting": "Disabled",
+        "C_Cpp.autocomplete": "Disabled",
+        "C_Cpp.errorSquiggles": "Disabled",
+        "C_Cpp.intelliSenseEngine": "Disabled",
+        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.autoAddFileAssociations": false,
+        "files.associations": {
+          "*.cu": "cuda-cpp",
+          "*.cuh": "cuda-cpp",
+          "**/libcudacxx/include/**/*": "cpp",
+          "**/libcudacxx-src/include/**/*": "cpp"
+        },
+        "python.defaultInterpreterPath": "/opt/conda/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
+        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
+        "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
+        "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
+        "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
+        "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
+        "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
+        "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
+        "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+        "[c]": {
+          "editor.defaultFormatter": "xaver.clang-format"
+        },
+        "[cpp]": {
+          "editor.defaultFormatter": "xaver.clang-format"
+        },
+        "[cuda-cpp]": {
+          "editor.defaultFormatter": "xaver.clang-format"
+        }
+      },
+    }
+  },
+}
