@@ -26,7 +26,6 @@ CompileFlags:
 
 # Tweak the clangd parse settings for all files
 CompileFlags:
-  CompilationDatabase: .
   Add:
     # report all errors
     - "-ferror-limit=0"
@@ -36,6 +35,7 @@ CompileFlags:
     - "-stdpar*"
     # strip CUDA fatbin args
     - "-Xfatbin*"
+    - "-Xcompiler*"
     - "-gpu=*"
     - "--diag_suppress*"
     # strip CUDA arch flags
