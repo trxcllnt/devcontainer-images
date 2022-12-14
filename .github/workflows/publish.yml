@@ -9,7 +9,7 @@ jobs:
     name: Publish image
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         ARCH: ["amd64", "arm64"]
         CUDA: ["", "11.8", "12.0"]
@@ -50,6 +50,14 @@ jobs:
           echo "tag=$tag" >> $GITHUB_ENV;
           echo "name=$name" >> $GITHUB_ENV;
 
+      - name: Login to ghcr.io
+        if: env.build_image == '1'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
       - name: Build image
         if: env.build_image == '1'
         shell: bash
@@ -70,5 +78,6 @@ jobs:
 
           npx -y --package=@devcontainers/cli -c "\
             devcontainer build \
+              --platform linux/${{ matrix.ARCH }} \
               --log-level info --workspace-folder ./src/${name} \
-              --image-name ghcr.io/trxcllnt/devcontainer-images/${name}:${tag}"
+              --image-name ghcr.io/trxcllnt/devcontainer-images/${name}:${tag}${{ matrix.ARCH }}"
