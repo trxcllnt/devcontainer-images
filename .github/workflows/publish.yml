@@ -21,24 +21,49 @@ jobs:
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - name: Report image name and tag
+      - name: Check repo name
         shell: bash
         env:
           CUDA: "${{ matrix.CUDA }}"
           LLVM: "${{ matrix.LLVM }}"
           NVHPC: "${{ matrix.NVHPC }}"
+          MAMBA: "${{ matrix.MAMBA }}"
         run: |
-          repo_cuda=${CUDA:+"-cuda"}
-          repo_llvm=${LLVM:+"-llvm"}
-          repo_nvhpc=${NVHPC:+"-nvhpc"}
-          repo_mamba=${MAMBA:+"-mambaforge"}
-          repo="cmake-ninja-sccache${repo_llvm}${repo_cuda}${repo_mamba}${repo_nvhpc}"
+          cuda=${CUDA:+"-cuda"}
+          llvm=${LLVM:+"-llvm"}
+          nvhpc=${NVHPC:+"-nvhpc"}
+          mamba=${MAMBA:+"-mambaforge"}
+          repo="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
 
-          if [[ ! -d "src/${repo}" ]]; then exit 0; fi
+          if [[ ! -d "src/${repo}" ]]; then
+            echo "build_image=0" >> $GITHUB_ENV;
+            exit 0;
+          fi
 
-          tag_cuda=${CUDA:+"${repo_cuda}${CUDA}"}
-          tag_llvm=${LLVM:+"${repo_llvm}${LLVM}"}
-          tag_nvhpc=${NVHPC:+"${repo_nvhpc}${NVHPC}"}
-          tag="${tag_llvm}${tag_cuda}${tag_nvhpc}"
+          echo "build_image=1" >> $GITHUB_ENV;
 
-          echo "$repo:${tag:+$tag-}${{ matrix.ARCH }}"
+          cuda=${CUDA:+"${CUDA}-"}
+          llvm=${LLVM:+"${LLVM}-"}
+          nvhpc=${NVHPC:+"${NVHPC}-"}
+          tag="${llvm}${cuda}${nvhpc}"
+
+          echo "tag=$tag" >> $GITHUB_ENV;
+          echo "repo=$repo" >> $GITHUB_ENV;
+
+      - name: Build image
+        if: env.build_image == '1'
+        shell: bash
+        run: |
+          sed -i -re \
+            's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${{ matrix.CUDA }}"\}@' \
+            ./src/${repo}/.devcontainer/devcontainer.json;
+          sed -i -re \
+            's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${{ matrix.LLVM }}"\}@' \
+            ./src/${repo}/.devcontainer/devcontainer.json;
+          sed -i -re \
+            's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${{ matrix.NVHPC }}"\}@' \
+            ./src/${repo}/.devcontainer/devcontainer.json;
+
+          echo "image name: ${repo}:${tag}${{ matrix.ARCH }}";
+          echo "devcontainer.json:";
+          cat ./src/${repo}/.devcontainer/devcontainer.json;
