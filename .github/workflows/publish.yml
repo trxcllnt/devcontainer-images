@@ -1,11 +1,12 @@
-name: Build images
+name: Publish images
 
 on:
   pull_request:
   workflow_dispatch:
 
 jobs:
-  build-images:
+  publish-images:
+    name: Publish image
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -31,7 +32,6 @@ jobs:
           repo_llvm=${LLVM:+"-llvm"}
           repo_nvhpc=${NVHPC:+"-nvhpc"}
           repo_mamba=${MAMBA:+"-mambaforge"}
-
           repo="cmake-ninja-sccache${repo_llvm}${repo_cuda}${repo_mamba}${repo_nvhpc}"
 
           if [[ ! -d "src/${repo}" ]]; then exit 0; fi
@@ -39,6 +39,6 @@ jobs:
           tag_cuda=${CUDA:+"${repo_cuda}${CUDA}"}
           tag_llvm=${LLVM:+"${repo_llvm}${LLVM}"}
           tag_nvhpc=${NVHPC:+"${repo_nvhpc}${NVHPC}"}
-
           tag="${tag_llvm}${tag_cuda}${tag_nvhpc}"
-          echo "cmake-ninja-sccache-${repo:+$repo-}:${tag:+$tag-}${{ matrix.ARCH }}"
+
+          echo "$repo:${tag:+$tag-}${{ matrix.ARCH }}"
