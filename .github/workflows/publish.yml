@@ -33,9 +33,9 @@ jobs:
           llvm=${LLVM:+"-llvm"}
           nvhpc=${NVHPC:+"-nvhpc"}
           mamba=${MAMBA:+"-mambaforge"}
-          repo="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
+          name="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
 
-          if [[ ! -d "src/${repo}" ]]; then
+          if [[ ! -d "src/${name}" ]]; then
             echo "build_image=0" >> $GITHUB_ENV;
             exit 0;
           fi
@@ -48,7 +48,7 @@ jobs:
           tag="${llvm}${cuda}${nvhpc}"
 
           echo "tag=$tag" >> $GITHUB_ENV;
-          echo "repo=$repo" >> $GITHUB_ENV;
+          echo "name=$name" >> $GITHUB_ENV;
 
       - name: Build image
         if: env.build_image == '1'
@@ -56,14 +56,19 @@ jobs:
         run: |
           sed -i -re \
             's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${{ matrix.CUDA }}"\}@' \
-            ./src/${repo}/.devcontainer/devcontainer.json;
+            ./src/${name}/.devcontainer/devcontainer.json;
           sed -i -re \
             's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${{ matrix.LLVM }}"\}@' \
-            ./src/${repo}/.devcontainer/devcontainer.json;
+            ./src/${name}/.devcontainer/devcontainer.json;
           sed -i -re \
             's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${{ matrix.NVHPC }}"\}@' \
-            ./src/${repo}/.devcontainer/devcontainer.json;
+            ./src/${name}/.devcontainer/devcontainer.json;
 
-          echo "image name: ${repo}:${tag}${{ matrix.ARCH }}";
+          echo "image name: ${name}:${tag}${{ matrix.ARCH }}";
           echo "devcontainer.json:";
-          cat ./src/${repo}/.devcontainer/devcontainer.json;
+          cat ./src/${name}/.devcontainer/devcontainer.json;
+
+          npx -y --package=@devcontainers/cli -c "\
+            devcontainer build \
+              --log-level info --workspace-folder ./src/${name} \
+              --image-name ghcr.io/trxcllnt/devcontainer-images/${name}:${tag}"
