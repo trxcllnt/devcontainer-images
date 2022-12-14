@@ -1,5 +1,8 @@
 {
-  "image": "ubuntu:jammy",
+  "build": {
+    "dockerfile": "./Dockerfile",
+    "context": "."
+  },
   "remoteUser": "coder",
   "features": {
     "ghcr.io/devcontainers/features/common-utils:1": {

@@ -72,6 +72,7 @@
         "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
         "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
         "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+        "python.terminal.activateEnvironment": false,
         "[c]": {
           "editor.defaultFormatter": "xaver.clang-format"
         },
