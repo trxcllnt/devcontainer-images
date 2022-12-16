@@ -45,6 +45,7 @@ jobs:
           llvm=${LLVM:+"${LLVM}-"}
           nvhpc=${NVHPC:+"${NVHPC}-"}
           tag="${llvm}${cuda}${nvhpc}"
+          tag="${tag:-latest-}"
           tag="${tag%?}"
 
           echo "tag=$tag" >> $GITHUB_ENV;
