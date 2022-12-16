@@ -11,7 +11,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ARCH: ["amd64", "arm64"]
         CUDA: ["", "11.8", "12.0"]
         LLVM: ["", "13", "14", "15", "dev"]
         NVHPC: ["", "22.11"]
@@ -46,38 +45,53 @@ jobs:
           llvm=${LLVM:+"${LLVM}-"}
           nvhpc=${NVHPC:+"${NVHPC}-"}
           tag="${llvm}${cuda}${nvhpc}"
+          tag="${tag%?}"
 
           echo "tag=$tag" >> $GITHUB_ENV;
           echo "name=$name" >> $GITHUB_ENV;
+
+          sed -i -re \
+            's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${{ matrix.CUDA }}"\}@' \
+            "./src/${name}/.devcontainer/devcontainer.json";
+          sed -i -re \
+            's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${{ matrix.LLVM }}"\}@' \
+            "./src/${name}/.devcontainer/devcontainer.json";
+          sed -i -re \
+            's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${{ matrix.NVHPC }}"\}@' \
+            "./src/${name}/.devcontainer/devcontainer.json";
+
+          echo "image name: ${name}:${tag}";
+          echo "devcontainer.json:";
+          cat "./src/${name}/.devcontainer/devcontainer.json";
+
+      - name: Set up QEMU
+        if: env.build_image == '1'
+        uses: docker/setup-qemu-action@v1
+
+      - name: Setup Docker buildx
+        if: env.build_image == '1'
+        uses: docker/setup-buildx-action@v1
+        with:
+          use: true
 
       - name: Login to ghcr.io
         if: env.build_image == '1'
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: ${{ github.repository_owner }}
           password: ${{ github.token }}
 
-      - name: Build image
+      - name: Build devcontainer image
         if: env.build_image == '1'
-        shell: bash
-        run: |
-          sed -i -re \
-            's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${{ matrix.CUDA }}"\}@' \
-            ./src/${name}/.devcontainer/devcontainer.json;
-          sed -i -re \
-            's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${{ matrix.LLVM }}"\}@' \
-            ./src/${name}/.devcontainer/devcontainer.json;
-          sed -i -re \
-            's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${{ matrix.NVHPC }}"\}@' \
-            ./src/${name}/.devcontainer/devcontainer.json;
-
-          echo "image name: ${name}:${tag}${{ matrix.ARCH }}";
-          echo "devcontainer.json:";
-          cat ./src/${name}/.devcontainer/devcontainer.json;
-
-          npx -y --package=@devcontainers/cli -c "\
-            devcontainer build \
-              --platform linux/${{ matrix.ARCH }} \
-              --log-level info --workspace-folder ./src/${name} \
-              --image-name ghcr.io/trxcllnt/devcontainer-images/${name}:${tag}${{ matrix.ARCH }}"
+        uses: devcontainers/ci@v0.2
+        env:
+          GITHUB_ACTOR: ${{ github.repository_owner }}
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          push: never
+          platform: linux/amd64,linux/arm64
+          subFolder: "./src/${{ env.name }}"
+          imageTag: ${{ env.tag }}
+          imageName: ghcr.io/${{ github.repository }}/${{ env.name }}
+          cacheFrom: ghcr.io/${{ github.repository }}/${{ env.name }}
