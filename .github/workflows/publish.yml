@@ -18,6 +18,15 @@ jobs:
         CUDA: ["", "11.8", "12.0"]
         LLVM: ["", "13", "14", "15", "dev"]
         NVHPC: ["", "22.11"]
+        exclude:
+          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
         include:
           - { CUDA: "", LLVM: "13", NVHPC: "", MAMBA: "mambaforge" }
           - { CUDA: "", LLVM: "14", NVHPC: "", MAMBA: "mambaforge" }
