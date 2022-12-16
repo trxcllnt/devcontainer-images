@@ -15,32 +15,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        CUDA: ["", "11.8", "12.0"]
-        LLVM: ["", "13", "14", "15", "dev"]
-        NVHPC: ["", "22.11"]
+        CUDA: ["", "cuda11.8", "cuda12.0"]
+        LLVM: ["", "llvm13", "llvm14", "llvm15", "llvmdev"]
+        NVHPC: ["", "nvhpc22.11"]
         MAMBA: [""]
         exclude:
-          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "11.8", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
-          - { CUDA: "12.0", LLVM: "", NVHPC: "22.11" }
+          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
         include:
-          - { CUDA: "", LLVM: "13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "dev", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "11.8", LLVM: "13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "11.8", LLVM: "14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "11.8", LLVM: "15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "11.8", LLVM: "dev", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "12.0", LLVM: "13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "12.0", LLVM: "14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "12.0", LLVM: "15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "12.0", LLVM: "dev", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
     steps:
       - name: Checkout stdexec
         uses: actions/checkout@v3
@@ -68,9 +68,9 @@ jobs:
 
           echo "build_image=1" >> $GITHUB_ENV;
 
-          cuda=${CUDA:+"-cuda${CUDA}"}
-          llvm=${LLVM:+"-llvm${LLVM}"}
-          nvhpc=${NVHPC:+"-nvhpc${NVHPC}"}
+          cuda=${CUDA:+"-${CUDA}"}
+          llvm=${LLVM:+"-${LLVM}"}
+          nvhpc=${NVHPC:+"-${NVHPC}"}
           mamba=${MAMBA:+"-mambaforge"}
           tag="cmake-ninja-sccache${llvm}${cuda}${nvhpc}${mamba}"
           tag="${tag:-latest}"
@@ -79,13 +79,13 @@ jobs:
           echo "tag=$tag" >> $GITHUB_ENV;
 
           sed -i -re \
-            's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${{ matrix.CUDA }}"\}@' \
+            's@features/cuda(:[0-9]+)": \{\}@features/cuda\1": \{"cudaVersion": "${CUDA#cuda}"\}@' \
             "./src/${dir}/.devcontainer/devcontainer.json";
           sed -i -re \
-            's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${{ matrix.LLVM }}"\}@' \
+            's@features/llvm(:[0-9]+)": \{\}@features/llvm\1": \{"llvmVersion": "${LLVM#llvm}"\}@' \
             "./src/${dir}/.devcontainer/devcontainer.json";
           sed -i -re \
-            's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${{ matrix.NVHPC }}"\}@' \
+            's@features/nvhpc(:[0-9]+)": \{\}@features/nvhpc\1": \{"nvhpcVersion": "${NVHPC#nvhpc}"\}@' \
             "./src/${dir}/.devcontainer/devcontainer.json";
 
           echo "image name: ghcr.io/${{ github.repository }}:${tag}";
@@ -114,7 +114,9 @@ jobs:
         if: env.build_image == '1'
         uses: devcontainers/ci@v0.2
         with:
-          push: never
+          push: filter
+          refFilterForPush: refs/heads/main
+          eventFilterForPush: workflow_dispatch
           imageTag: ${{ env.tag }}
           subFolder: src/${{ env.dir }}
           platform: linux/amd64,linux/arm64
