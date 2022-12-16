@@ -82,16 +82,13 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ github.token }}
 
-      - name: Build devcontainer image
+      - name: Build and push devcontainer
         if: env.build_image == '1'
         uses: devcontainers/ci@v0.2
-        env:
-          GITHUB_ACTOR: ${{ github.repository_owner }}
-          GITHUB_TOKEN: ${{ github.token }}
         with:
           push: never
           platform: linux/amd64,linux/arm64
           subFolder: "./src/${{ env.name }}"
           imageTag: ${{ env.tag }}
           imageName: ghcr.io/${{ github.repository }}/${{ env.name }}
-          cacheFrom: ghcr.io/${{ github.repository }}/${{ env.name }}
+          cacheFrom: ghcr.io/${{ github.repository }}/${{ env.name }}:${{ env.tag }}
