@@ -17,7 +17,9 @@
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/cmake:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/ninja:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {
+      "sccacheVersion": "0.3.1"
+    },
     "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
   },
   "overrideFeatureInstallOrder": [
