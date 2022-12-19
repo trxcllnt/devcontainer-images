@@ -1,4 +1,4 @@
-name: Publish images
+name: Build
 
 on:
   pull_request:
@@ -21,19 +21,12 @@ jobs:
         NVHPC: ["", "nvhpc22.11"]
         MAMBA: ["", "mambaforge"]
         exclude:
-          - { CUDA: "", LLVM: "", MAMBA: "mambaforge" }
-          - { NVHPC: "nvhpc22.11", MAMBA: "mambaforge" }
+          - { NVHPC: "nvhpc22.11",        MAMBA: "mambaforge" }
+          - { CUDA: "",         LLVM: "", MAMBA: "mambaforge" }
           - { CUDA: "cuda11.8", LLVM: "", MAMBA: "mambaforge" }
           - { CUDA: "cuda12.0", LLVM: "", MAMBA: "mambaforge" }
           - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
           - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-        # include:
-        #   - { CUDA: "", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-        #   - { CUDA: "", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
-        #   - { CUDA: "cuda11.8", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-        #   - { CUDA: "cuda11.8", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
-        #   - { CUDA: "cuda12.0", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-        #   - { CUDA: "cuda12.0", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
     steps:
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v3
