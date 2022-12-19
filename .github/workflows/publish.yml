@@ -89,23 +89,25 @@ jobs:
         if: env.build_image == '1'
         shell: bash
         run: |
-          df -h
-          docker images
-          ls -l /usr/share ${{ runner.tool_cache }}
-          sudo swapoff -a
-          sudo rm -f /swapfile /mnt/swapfile
-          sudo apt clean
-          sudo rm -rf "$CONDA"
-          sudo rm -rf /opt/ghc
-          sudo rm -rf /usr/share/swift
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /usr/local/share/boost
-          sudo rm -rf /usr/local/lib/android
-          sudo rm -rf /home/linuxbrew/.linuxbrew
-          sudo rm -rf ${{ runner.tool_cache }}/CodeQL
-          docker rmi $(docker image ls -aq) || true
-          df -h
-          docker images
+          set +x;
+          df -h;
+          docker images;
+          sudo du -h -d1 /usr/share | sort -rh | head -n 30;
+          sudo du -h -d1 ${{ runner.tool_cache }} | sort -rh | head -n 30;
+          sudo swapoff -a;
+          sudo rm -f /swapfile /mnt/swapfile;
+          sudo apt clean;
+          sudo rm -rf "$CONDA";
+          sudo rm -rf /opt/ghc;
+          sudo rm -rf /usr/share/swift;
+          sudo rm -rf /usr/share/dotnet;
+          sudo rm -rf /usr/local/share/boost;
+          sudo rm -rf /usr/local/lib/android;
+          sudo rm -rf /home/linuxbrew/.linuxbrew;
+          sudo rm -rf ${{ runner.tool_cache }}/CodeQL;
+          docker rmi $(docker image ls -aq) || true;
+          df -h;
+          docker images;
 
       - name: Set up QEMU
         if: env.build_image == '1'
