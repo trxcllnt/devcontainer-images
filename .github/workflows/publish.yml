@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
-      max-parallel: 10
       matrix:
         CUDA: ["", "cuda11.8", "cuda12.0"]
         LLVM: ["", "llvm15", "llvmdev"]
@@ -82,7 +81,7 @@ jobs:
         if: env.build_image == '1'
         shell: bash
         run: |
-          set +x;
+          set -x;
           df -h;
           docker images;
           sudo du -h -d1 /usr/share | sort -rh | head -n 30;
