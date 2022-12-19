@@ -22,6 +22,9 @@ jobs:
         MAMBA: ["", "mambaforge"]
         exclude:
           - { CUDA: "", LLVM: "", MAMBA: "mambaforge" }
+          - { NVHPC: "nvhpc22.11", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "", MAMBA: "mambaforge" }
           - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
           - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
         # include:
@@ -89,18 +92,17 @@ jobs:
           df -h
           docker images
           ls -l /usr/share ${{ runner.tool_cache }}
-          # sudo swapoff -a
-          # sudo rm -f /swapfile
+          sudo swapoff -a
+          sudo rm -f /swapfile /mnt/swapfile
           sudo apt clean
-          sudo rm -rf \
-            "$CONDA" \
-            /opt/ghc \
-            /usr/share/swift \
-            /usr/share/dotnet \
-            /usr/local/share/boost \
-            /usr/local/lib/android \
-            /home/linuxbrew/.linuxbrew \
-            ${{ runner.tool_cache }}/CodeQL
+          sudo rm -rf "$CONDA"
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /usr/share/swift
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/share/boost
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /home/linuxbrew/.linuxbrew
+          sudo rm -rf ${{ runner.tool_cache }}/CodeQL
           docker rmi $(docker image ls -aq) || true
           df -h
           docker images
