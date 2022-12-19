@@ -21,9 +21,9 @@ jobs:
         NVHPC: ["", "nvhpc22.11"]
         MAMBA: ["", "mambaforge"]
         exclude:
+          - { CUDA: "", LLVM: "", MAMBA: "mambaforge" }
           - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
           - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "", LLVM: "", NVHPC: "", MAMBA: "mambaforge" }
         # include:
         #   - { CUDA: "", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
         #   - { CUDA: "", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
@@ -32,12 +32,6 @@ jobs:
         #   - { CUDA: "cuda12.0", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
         #   - { CUDA: "cuda12.0", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
     steps:
-      - name: Maximize disk space for building
-        uses: easimon/maximize-build-space@master
-        with:
-          remove-dotnet: 'true'
-          remove-android: 'true'
-          remove-haskell: 'true'
       - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v3
         with:
@@ -87,6 +81,29 @@ jobs:
           echo "image name: ghcr.io/${{ github.repository }}:${tag}";
           echo "devcontainer.json:";
           cat "./src/${dir}/.devcontainer/devcontainer.json";
+
+      - name: Free up disk space
+        if: env.build_image == '1'
+        shell: bash
+        run: |
+          df -h
+          docker images
+          ls -l /usr/share ${{ runner.tool_cache }}
+          # sudo swapoff -a
+          # sudo rm -f /swapfile
+          sudo apt clean
+          sudo rm -rf \
+            "$CONDA" \
+            /opt/ghc \
+            /usr/share/swift \
+            /usr/share/dotnet \
+            /usr/local/share/boost \
+            /usr/local/lib/android \
+            /home/linuxbrew/.linuxbrew \
+            ${{ runner.tool_cache }}/CodeQL
+          docker rmi $(docker image ls -aq) || true
+          df -h
+          docker images
 
       - name: Set up QEMU
         if: env.build_image == '1'
