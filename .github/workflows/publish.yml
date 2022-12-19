@@ -5,48 +5,44 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: publish-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  group: build-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
-  publish-images:
-    name: Publish image
-    runs-on: ubuntu-latest
+  build-images:
+    name: Build
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
+      max-parallel: 10
       matrix:
         CUDA: ["", "cuda11.8", "cuda12.0"]
-        LLVM: ["", "llvm13", "llvm14", "llvm15", "llvmdev"]
+        LLVM: ["", "llvm15", "llvmdev"]
         NVHPC: ["", "nvhpc22.11"]
-        MAMBA: [""]
+        MAMBA: ["", "mambaforge"]
         exclude:
           - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
           - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
-        include:
-          - { CUDA: "", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda11.8", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda11.8", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda11.8", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda11.8", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda12.0", LLVM: "llvm13", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda12.0", LLVM: "llvm14", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda12.0", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
-          - { CUDA: "cuda12.0", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
+          - { CUDA: "", LLVM: "", NVHPC: "", MAMBA: "mambaforge" }
+        # include:
+        #   - { CUDA: "", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+        #   - { CUDA: "", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
+        #   - { CUDA: "cuda11.8", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+        #   - { CUDA: "cuda11.8", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
+        #   - { CUDA: "cuda12.0", LLVM: "llvm15", NVHPC: "", MAMBA: "mambaforge" }
+        #   - { CUDA: "cuda12.0", LLVM: "llvmdev", NVHPC: "", MAMBA: "mambaforge" }
     steps:
-      - name: Checkout stdexec
+      - name: Maximize disk space for building
+        uses: easimon/maximize-build-space@master
+        with:
+          remove-dotnet: 'true'
+          remove-android: 'true'
+          remove-haskell: 'true'
+      - name: Checkout ${{ github.repository }}
         uses: actions/checkout@v3
         with:
           persist-credentials: false
-      - name: Check repo name
+      - name: Determine devcontainer image name and tag
         shell: bash
         env:
           CUDA: "${{ matrix.CUDA }}"
@@ -92,34 +88,13 @@ jobs:
           echo "devcontainer.json:";
           cat "./src/${dir}/.devcontainer/devcontainer.json";
 
-      - name: Free up disk space
-        if: env.build_image == '1'
-        shell: bash
-        run: |
-          df -h
-          docker images
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          sudo rm -rf \
-            "$CONDA" \
-            /opt/ghc \
-            /usr/share/swift \
-            /usr/share/dotnet \
-            /usr/local/lib/android \
-            /home/linuxbrew/.linuxbrew \
-            ${{ runner.tool_cache }}/CodeQL
-          docker rmi $(docker image ls -aq) || true
-          df -h
-          docker images
-
       - name: Set up QEMU
         if: env.build_image == '1'
-        uses: docker/setup-qemu-action@v1
+        uses: docker/setup-qemu-action@v2
 
       - name: Setup Docker buildx
         if: env.build_image == '1'
-        uses: docker/setup-buildx-action@v1
+        uses: docker/setup-buildx-action@v2
         with:
           use: true
 
