@@ -84,16 +84,21 @@ jobs:
           set -x;
           df -h;
           docker images;
-          sudo du -h -d5 /opt | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /mnt | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /usr | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /home | sort -rh | head -n 30 || true;
-          sudo du -h -d5 "$HOME" | sort -rh | head -n 30 || true;
-          sudo du -h -d5 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /opt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /mnt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /usr | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /home | sort -rh | head -n 30 || true;
+          sudo du -h -d2 "$HOME" | sort -rh | head -n 30 || true;
+          sudo du -h -d2 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
           sudo swapoff -a;
           sudo rm -f /swapfile /mnt/swapfile;
           sudo apt clean;
+          sudo rm -rf /opt/az;
           sudo rm -rf /opt/ghc;
+          sudo rm -rf /opt/google;
+          sudo rm -rf /opt/microsoft;
+          sudo rm -rf /usr/lib/mono;
+          sudo rm -rf /usr/local/julia*;
           sudo rm -rf /usr/local/.ghcup;
           sudo rm -rf /usr/share/swift;
           sudo rm -rf /usr/share/dotnet;
@@ -103,6 +108,8 @@ jobs:
           sudo rm -rf /usr/share/gradle-7.6;
           sudo rm -rf /usr/local/share/boost;
           sudo rm -rf /usr/local/lib/android;
+          sudo rm -rf /usr/local/share/chromium;
+          sudo rm -rf /usr/local/share/powershell;
           sudo rm -rf /home/linuxbrew/.linuxbrew;
           sudo rm -rf ${{ runner.tool_cache }}/go;
           sudo rm -rf ${{ runner.tool_cache }}/Ruby;
@@ -112,12 +119,12 @@ jobs:
           docker rmi $(docker image ls -aq) || true;
           df -h;
           docker images;
-          sudo du -h -d5 /opt | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /mnt | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /usr | sort -rh | head -n 30 || true;
-          sudo du -h -d5 /home | sort -rh | head -n 30 || true;
-          sudo du -h -d5 "$HOME" | sort -rh | head -n 30 || true;
-          sudo du -h -d5 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /opt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /mnt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /usr | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /home | sort -rh | head -n 30 || true;
+          sudo du -h -d2 "$HOME" | sort -rh | head -n 30 || true;
+          sudo du -h -d2 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
 
       - name: Set up QEMU
         if: env.build_image == '1'
