@@ -84,9 +84,10 @@ jobs:
           set -x;
           df -h;
           docker images;
-          sudo du -h -d10 / | sort -rh | head -n 30;
-          sudo du -h -d1 /usr/share | sort -rh | head -n 30;
-          sudo du -h -d1 ${{ runner.tool_cache }} | sort -rh | head -n 30;
+          sudo du -h -d3 /opt | sort -rh | head -n 30;
+          sudo du -h -d3 /mnt | sort -rh | head -n 30;
+          sudo du -h -d3 /usr/share | sort -rh | head -n 30;
+          sudo du -h -d3 ${{ runner.tool_cache }} | sort -rh | head -n 30;
           sudo swapoff -a;
           sudo rm -f /swapfile /mnt/swapfile;
           sudo apt clean;
@@ -108,7 +109,10 @@ jobs:
           docker rmi $(docker image ls -aq) || true;
           df -h;
           docker images;
-          sudo du -h -d10 / | sort -rh | head -n 30;
+          sudo du -h -d3 /opt | sort -rh | head -n 30;
+          sudo du -h -d3 /mnt | sort -rh | head -n 30;
+          sudo du -h -d3 /usr/share | sort -rh | head -n 30;
+          sudo du -h -d3 ${{ runner.tool_cache }} | sort -rh | head -n 30;
 
       - name: Set up QEMU
         if: env.build_image == '1'
