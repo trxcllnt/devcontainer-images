@@ -1,0 +1,159 @@
+name: Build
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-images:
+    name: Build
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        CUDA: ["", "cuda11.8", "cuda12.0"]
+        LLVM: ["", "llvm15", "llvmdev"]
+        NVHPC: ["", "nvhpc22.11"]
+        MAMBA: ["", "mambaforge"]
+        exclude:
+          - { NVHPC: "nvhpc22.11",        MAMBA: "mambaforge" }
+          - { CUDA: "",         LLVM: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda12.0", LLVM: "", MAMBA: "mambaforge" }
+          - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+          - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
+    steps:
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Determine devcontainer image name and tag
+        shell: bash
+        env:
+          CUDA: "${{ matrix.CUDA }}"
+          LLVM: "${{ matrix.LLVM }}"
+          NVHPC: "${{ matrix.NVHPC }}"
+          MAMBA: "${{ matrix.MAMBA }}"
+        run: |
+          cuda=${CUDA:+"-cuda"}
+          llvm=${LLVM:+"-llvm"}
+          nvhpc=${NVHPC:+"-nvhpc"}
+          mamba=${MAMBA:+"-mambaforge"}
+          dir="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
+
+          if [[ ! -d "./src/${dir}" ]]; then
+            echo "skipping because ! -d ./src/${dir}";
+            echo "build_image=0" >> $GITHUB_ENV;
+            exit 0;
+          fi
+
+          echo "build_image=1" >> $GITHUB_ENV;
+
+          cuda=${CUDA:+"-${CUDA}"}
+          llvm=${LLVM:+"-${LLVM}"}
+          nvhpc=${NVHPC:+"-${NVHPC}"}
+          mamba=${MAMBA:+"-mambaforge"}
+          tag="cmake-ninja-sccache${llvm}${cuda}${nvhpc}${mamba}"
+          tag="${tag:-latest}"
+
+          echo "dir=$dir" >> $GITHUB_ENV;
+          echo "tag=$tag" >> $GITHUB_ENV;
+
+          sed -i -re \
+            "s@features/cuda(:[0-9]+)\": \{\}@features/cuda\1\": \{\"cudaVersion\": \"${CUDA#cuda}\"\}@" \
+            "./src/${dir}/.devcontainer/devcontainer.json";
+          sed -i -re \
+            "s@features/llvm(:[0-9]+)\": \{\}@features/llvm\1\": \{\"llvmVersion\": \"${LLVM#llvm}\"\}@" \
+            "./src/${dir}/.devcontainer/devcontainer.json";
+          sed -i -re \
+            "s@features/nvhpc(:[0-9]+)\": \{\}@features/nvhpc\1\": \{\"nvhpcVersion\": \"${NVHPC#nvhpc}\"\}@" \
+            "./src/${dir}/.devcontainer/devcontainer.json";
+
+          echo "image name: ghcr.io/${{ github.repository }}:${tag}";
+          echo "devcontainer.json:";
+          cat "./src/${dir}/.devcontainer/devcontainer.json";
+
+      - name: Free up disk space
+        if: env.build_image == '1'
+        shell: bash
+        run: |
+          set -x;
+          df -h;
+          docker images;
+          sudo du -h -d2 /opt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /mnt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /usr | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /home | sort -rh | head -n 30 || true;
+          sudo du -h -d2 "$HOME" | sort -rh | head -n 30 || true;
+          sudo du -h -d2 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
+          sudo swapoff -a;
+          sudo rm -f /swapfile /mnt/swapfile;
+          sudo apt clean;
+          sudo rm -rf /opt/az;
+          sudo rm -rf /opt/ghc;
+          sudo rm -rf /opt/google;
+          sudo rm -rf /opt/microsoft;
+          sudo rm -rf /usr/lib/mono;
+          sudo rm -rf /usr/local/julia*;
+          sudo rm -rf /usr/local/.ghcup;
+          sudo rm -rf /usr/share/swift;
+          sudo rm -rf /usr/share/dotnet;
+          sudo rm -rf /usr/share/kotlinc;
+          sudo rm -rf /usr/share/az_9.0.1;
+          sudo rm -rf /usr/share/miniconda;
+          sudo rm -rf /usr/share/gradle-7.6;
+          sudo rm -rf /usr/local/share/boost;
+          sudo rm -rf /usr/local/lib/android;
+          sudo rm -rf /usr/local/share/chromium;
+          sudo rm -rf /usr/local/share/powershell;
+          sudo rm -rf /home/linuxbrew/.linuxbrew;
+          sudo rm -rf ${{ runner.tool_cache }}/go;
+          sudo rm -rf ${{ runner.tool_cache }}/Ruby;
+          sudo rm -rf ${{ runner.tool_cache }}/PyPy;
+          sudo rm -rf ${{ runner.tool_cache }}/CodeQL;
+          sudo rm -rf ${{ runner.tool_cache }}/Python;
+          docker rmi $(docker image ls -aq) || true;
+          df -h;
+          docker images;
+          sudo du -h -d2 /opt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /mnt | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /usr | sort -rh | head -n 30 || true;
+          sudo du -h -d2 /home | sort -rh | head -n 30 || true;
+          sudo du -h -d2 "$HOME" | sort -rh | head -n 30 || true;
+          sudo du -h -d2 ${{ runner.tool_cache }} | sort -rh | head -n 30 || true;
+
+      - name: Set up QEMU
+        if: env.build_image == '1'
+        uses: docker/setup-qemu-action@v2
+
+      - name: Setup Docker buildx
+        if: env.build_image == '1'
+        uses: docker/setup-buildx-action@v2
+        with:
+          use: true
+
+      - name: Login to ghcr.io
+        if: env.build_image == '1'
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ github.token }}
+
+      - name: Build and push devcontainer
+        if: env.build_image == '1'
+        uses: devcontainers/ci@v0.2
+        with:
+          push: filter
+          skipContainerUserIdUpdate: true
+          refFilterForPush: refs/heads/main
+          eventFilterForPush: workflow_dispatch
+          imageTag: ${{ env.tag }}
+          subFolder: src/${{ env.dir }}
+          platform: linux/amd64,linux/arm64
+          imageName: ghcr.io/${{ github.repository }}
+          cacheFrom: ghcr.io/${{ github.repository }}:${{ env.tag }}
