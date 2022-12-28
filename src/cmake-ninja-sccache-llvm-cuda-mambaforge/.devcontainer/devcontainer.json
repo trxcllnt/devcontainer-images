@@ -25,9 +25,7 @@
       "sccacheVersion": "0.3.1"
     },
     "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {
-      "cudaVersion": "12.0"
-    },
+    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
   },
   "overrideFeatureInstallOrder": [
