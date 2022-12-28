@@ -8,7 +8,9 @@
     "ghcr.io/devcontainers/features/common-utils:1": {
       "uid": "1000",
       "gid": "1000",
-      "username": "coder"
+      "username": "coder",
+      "installZsh": "true",
+      "upgradePackages": "true"
     },
     "ghcr.io/devcontainers/features/git:1": {
       "ppa": "true"
