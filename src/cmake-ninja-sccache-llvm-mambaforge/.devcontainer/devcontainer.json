@@ -16,6 +16,7 @@
     "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/python:1": "none",
+    "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/cmake:1": {
       "cmakeVersion": "3.25.1"
     },
