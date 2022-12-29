@@ -17,7 +17,6 @@
     },
     "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/python:1": "none",
     "ghcr.io/trxcllnt/devcontainer-features/cmake:1": {
       "cmakeVersion": "3.25.1"
     },
@@ -29,18 +28,19 @@
     },
     "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
     "ghcr.io/devcontainers/features/git",
     "ghcr.io/devcontainers/features/git-lfs",
     "ghcr.io/devcontainers/features/github-cli",
-    "ghcr.io/devcontainers/features/python",
     "ghcr.io/trxcllnt/devcontainer-features/cmake",
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
     "ghcr.io/trxcllnt/devcontainer-features/cuda",
+    "ghcr.io/trxcllnt/devcontainer-features/mambaforge",
   ],
   "customizations": {
     "vscode": {
@@ -71,15 +71,15 @@
         "python.defaultInterpreterPath": "/opt/conda/bin/python",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
-        "python.formatting.autopep8Path": "/usr/local/py-utils/bin/autopep8",
-        "python.formatting.blackPath": "/usr/local/py-utils/bin/black",
-        "python.formatting.yapfPath": "/usr/local/py-utils/bin/yapf",
-        "python.linting.banditPath": "/usr/local/py-utils/bin/bandit",
-        "python.linting.flake8Path": "/usr/local/py-utils/bin/flake8",
-        "python.linting.mypyPath": "/usr/local/py-utils/bin/mypy",
-        "python.linting.pycodestylePath": "/usr/local/py-utils/bin/pycodestyle",
-        "python.linting.pydocstylePath": "/usr/local/py-utils/bin/pydocstyle",
-        "python.linting.pylintPath": "/usr/local/py-utils/bin/pylint",
+        "python.formatting.autopep8Path": "/opt/conda/envs/base/bin/autopep8",
+        "python.formatting.blackPath": "/opt/conda/envs/base/bin/black",
+        "python.formatting.yapfPath": "/opt/conda/envs/base/bin/yapf",
+        "python.linting.banditPath": "/opt/conda/envs/base/bin/bandit",
+        "python.linting.flake8Path": "/opt/conda/envs/base/bin/flake8",
+        "python.linting.mypyPath": "/opt/conda/envs/base/bin/mypy",
+        "python.linting.pycodestylePath": "/opt/conda/envs/base/bin/pycodestyle",
+        "python.linting.pydocstylePath": "/opt/conda/envs/base/bin/pydocstyle",
+        "python.linting.pylintPath": "/opt/conda/envs/base/bin/pylint",
         "python.terminal.activateEnvironment": false,
         "[c]": {
           "editor.defaultFormatter": "xaver.clang-format"
