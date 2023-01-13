@@ -1,0 +1,31 @@
+name: build-matrix
+
+description: "Determine the build matrix"
+
+outputs:
+  matrix:
+    value: ${{ steps.matrix.outputs.matrix }}
+
+runs:
+  using: composite
+  steps:
+    - name: Determine the build matrix
+      id: matrix
+      shell: bash
+      run: |
+        echo "matrix=$(
+        cat <<EOF | yq -o json --no-colors | jq -c -r -M '.matrix'
+        matrix:
+          CUDA: ["", "cuda11.8", "cuda12.0"]
+          LLVM: ["", "llvm15", "llvmdev"]
+          NVHPC: ["", "nvhpc22.11"]
+          MAMBA: ["", "mambaforge"]
+          exclude:
+            - { NVHPC: "nvhpc22.11",        MAMBA: "mambaforge" }
+            - { CUDA: "",         LLVM: "", MAMBA: "mambaforge" }
+            - { CUDA: "cuda11.8", LLVM: "", MAMBA: "mambaforge" }
+            - { CUDA: "cuda12.0", LLVM: "", MAMBA: "mambaforge" }
+            - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
+            - { CUDA: "cuda12.0", LLVM: "", NVHPC: "nvhpc22.11" }
+        EOF
+        )" | tee -a $GITHUB_OUTPUT;

@@ -1,0 +1,75 @@
+name: image-name-and-tag
+
+description: "Determine devcontainer image name and tag"
+
+inputs:
+  CUDA:
+    type: string
+    required: true
+  LLVM:
+    type: string
+    required: true
+  NVHPC:
+    type: string
+    required: true
+  MAMBA:
+    type: string
+    required: true
+
+outputs:
+  dir:
+    value: ${{ steps.image-and-tag.outputs.dir }}
+  tag:
+    value: ${{ steps.image-and-tag.outputs.tag }}
+  build_image:
+    value: ${{ steps.image-and-tag.outputs.build_image }}
+
+runs:
+  using: composite
+  steps:
+    - id: image-and-tag
+      name: Determine devcontainer image name and tag
+      shell: bash
+      env:
+        CUDA: "${{ inputs.CUDA }}"
+        LLVM: "${{ inputs.LLVM }}"
+        NVHPC: "${{ inputs.NVHPC }}"
+        MAMBA: "${{ inputs.MAMBA }}"
+      run: |
+        cuda=${CUDA:+"-cuda"}
+        llvm=${LLVM:+"-llvm"}
+        nvhpc=${NVHPC:+"-nvhpc"}
+        mamba=${MAMBA:+"-mambaforge"}
+        dir="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
+
+        if [[ ! -d "./src/${dir}" ]]; then
+          echo "skipping because ! -d ./src/${dir}";
+          echo "build_image=0" >> $GITHUB_OUTPUT;
+          exit 1;
+        fi
+
+        echo "build_image=1" >> $GITHUB_OUTPUT;
+
+        cuda=${CUDA:+"-${CUDA}"}
+        llvm=${LLVM:+"-${LLVM}"}
+        nvhpc=${NVHPC:+"-${NVHPC}"}
+        mamba=${MAMBA:+"-mambaforge"}
+        tag="cmake-ninja-sccache${llvm}${cuda}${nvhpc}${mamba}"
+        tag="${tag:-latest}"
+
+        echo "dir=$dir" >> $GITHUB_OUTPUT;
+        echo "tag=$tag" >> $GITHUB_OUTPUT;
+
+        sed -i -re \
+          "s@features/cuda(:[0-9]+)\": \{\}@features/cuda\1\": \{\"cudaVersion\": \"${CUDA#cuda}\"\}@" \
+          "./src/${dir}/.devcontainer/devcontainer.json";
+        sed -i -re \
+          "s@features/llvm(:[0-9]+)\": \{\}@features/llvm\1\": \{\"llvmVersion\": \"${LLVM#llvm}\"\}@" \
+          "./src/${dir}/.devcontainer/devcontainer.json";
+        sed -i -re \
+          "s@features/nvhpc(:[0-9]+)\": \{\}@features/nvhpc\1\": \{\"nvhpcVersion\": \"${NVHPC#nvhpc}\"\}@" \
+          "./src/${dir}/.devcontainer/devcontainer.json";
+
+        echo "image name: ghcr.io/${{ github.repository }}:${tag}";
+        echo "devcontainer.json:";
+        cat "./src/${dir}/.devcontainer/devcontainer.json";
