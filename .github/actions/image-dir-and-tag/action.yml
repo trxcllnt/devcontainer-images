@@ -1,6 +1,6 @@
-name: image-name-and-tag
+name: image-dir-and-tag
 
-description: "Determine devcontainer image name and tag"
+description: "Determine devcontainer dir and image tag"
 
 inputs:
   CUDA:
@@ -18,17 +18,17 @@ inputs:
 
 outputs:
   dir:
-    value: ${{ steps.image-and-tag.outputs.dir }}
+    value: ${{ steps.image-dir-and-tag.outputs.dir }}
   tag:
-    value: ${{ steps.image-and-tag.outputs.tag }}
+    value: ${{ steps.image-dir-and-tag.outputs.tag }}
   build_image:
-    value: ${{ steps.image-and-tag.outputs.build_image }}
+    value: ${{ steps.image-dir-and-tag.outputs.build_image }}
 
 runs:
   using: composite
   steps:
-    - id: image-and-tag
-      name: Determine devcontainer image name and tag
+    - id: image-dir-and-tag
+      name: Determine devcontainer dir and image tag
       shell: bash
       env:
         CUDA: "${{ inputs.CUDA }}"

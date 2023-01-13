@@ -37,9 +37,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Determine devcontainer image name and tag
-        uses: ./.github/actions/image-name-and-tag
-        id: image-and-tag
+      - name: Determine devcontainer dir and image tag
+        uses: ./.github/actions/image-dir-and-tag
+        id: image-dir-and-tag
         with:
           CUDA: "${{ matrix.CUDA }}"
           LLVM: "${{ matrix.LLVM }}"
@@ -75,16 +75,15 @@ jobs:
           skipContainerUserIdUpdate: true
           refFilterForPush: refs/heads/main
           eventFilterForPush: workflow_dispatch
-          imageTag: ${{ steps.image-and-tag.outputs.tag }}
-          subFolder: src/${{ steps.image-and-tag.outputs.dir }}
+          imageTag: ${{ steps.image-dir-and-tag.outputs.tag }}
+          subFolder: src/${{ steps.image-dir-and-tag.outputs.dir }}
           platform: linux/amd64,linux/arm64
           imageName: ghcr.io/${{ github.repository }}
-          cacheFrom: ghcr.io/${{ github.repository }}:${{ steps.image-and-tag.outputs.tag }}
+          cacheFrom: ghcr.io/${{ github.repository }}:${{ steps.image-dir-and-tag.outputs.tag }}
 
-      - if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        name: Publish image to Docker Hub
-        uses: ./.github/actions/publish-to-dockerhub
-        with:
-          tag: ${{ steps.image-and-tag.outputs.tag }}
-          username: ${{ vars.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+  push-to-dockerhub:
+    name: Push images to Docker Hub
+    needs: build-images
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/dockerhub.yml
+    secrets: inherit
