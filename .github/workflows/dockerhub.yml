@@ -1,10 +1,11 @@
-name: Publish images to Docker Hub
+name: Push images to Docker Hub
 
 on:
+  workflow_call:
   workflow_dispatch:
 
 concurrency:
-  group: publish-images-to-dockerhub-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  group: push-to-dockerhub-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -23,8 +24,8 @@ jobs:
         id: matrix
         uses: ./.github/actions/build-matrix
 
-  publish-images:
-    name: Publish
+  push-to-dockerhub:
+    name: Push
     needs: build-matrix
     runs-on: ubuntu-22.04
     strategy:
@@ -36,9 +37,9 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Determine devcontainer image name and tag
-        uses: ./.github/actions/image-name-and-tag
-        id: image-and-tag
+      - name: Determine devcontainer dir and image tag
+        uses: ./.github/actions/image-dir-and-tag
+        id: image-dir-and-tag
         with:
           CUDA: "${{ matrix.CUDA }}"
           LLVM: "${{ matrix.LLVM }}"
@@ -51,9 +52,9 @@ jobs:
           home: "${{ env.HOME }}"
           tool_cache: "${{ runner.tool_cache }}"
 
-      - name: Publish image to Docker Hub
-        uses: ./.github/actions/publish-to-dockerhub
+      - name: Push image to Docker Hub
+        uses: ./.github/actions/push-to-dockerhub
         with:
-          tag: ${{ steps.image-and-tag.outputs.tag }}
+          tag: ${{ steps.image-dir-and-tag.outputs.tag }}
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
