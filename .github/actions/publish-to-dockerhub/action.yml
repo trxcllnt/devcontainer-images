@@ -26,6 +26,8 @@ runs:
       env:
         tag: "${{ inputs.tag }}"
         DOCKER_CLI_EXPERIMENTAL: enabled
+        registry_username: "${{ inputs.username }}"
+        registry_password: "${{ inputs.password }}"
         docker_repository: "${{ inputs.username }}/devcontainers"
       shell: bash
       run: |
@@ -34,8 +36,9 @@ runs:
 
         # Remove all images to conserve disk space
         docker rmi $(docker image ls -aq) || true;
-        docker manifest rm ${name} || true;
         docker system prune -f;
+
+        docker manifest rm ${name} || true;
 
         for arch in amd64 arm64; do
           # Pull each image locally
@@ -49,9 +52,23 @@ runs:
           # Annotate that this image is the ${arch} version
           docker manifest annotate ${name} ${name}-${arch} --arch ${arch};
           # Remove all images to conserve disk space
-          docker rmi ${from} ${name}-${arch} || true;
+          docker rmi $(docker image ls -aq) || true;
           docker system prune -f;
         done;
 
         # Push the multiarch manifest
         docker manifest push ${name};
+
+        # Remove the arch-specific tags and just leave the multiarch manifest
+        DOCKERHUB_TOKEN="$(
+          curl -s \
+            -H "Content-Type: application/json" \
+            -X POST \
+            -d "{\"username\": \"${registry_username}\", \"password\": \"${registry_password}\"}" \
+            https://hub.docker.com/v2/users/login/ \
+        | jq -r .token)";
+
+        for arch in amd64 arm64; do
+          curl -i -X DELETE -H "Accept: application/json" -H "Authorization: JWT $DOCKERHUB_TOKEN" \
+            "https://hub.docker.com/v2/repositories/${docker_repository}/tags/${tag}-${arch}/";
+        done
