@@ -1,11 +1,10 @@
-name: Build
+name: Publish images to Docker Hub
 
 on:
-  pull_request:
   workflow_dispatch:
 
 concurrency:
-  group: build-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  group: publish-images-to-dockerhub-on-${{ github.event_name }}-from-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -24,8 +23,8 @@ jobs:
         id: matrix
         uses: ./.github/actions/build-matrix
 
-  build-images:
-    name: Build
+  publish-images:
+    name: Publish
     needs: build-matrix
     runs-on: ubuntu-22.04
     strategy:
@@ -52,37 +51,7 @@ jobs:
           home: "${{ env.HOME }}"
           tool_cache: "${{ runner.tool_cache }}"
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v2
-        with:
-          use: true
-
-      - if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        name: Login to ghcr.io
-        uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ github.token }}
-
-      - name: Build devcontainer
-        uses: devcontainers/ci@v0.2
-        with:
-          push: filter
-          skipContainerUserIdUpdate: true
-          refFilterForPush: refs/heads/main
-          eventFilterForPush: workflow_dispatch
-          imageTag: ${{ steps.image-and-tag.outputs.tag }}
-          subFolder: src/${{ steps.image-and-tag.outputs.dir }}
-          platform: linux/amd64,linux/arm64
-          imageName: ghcr.io/${{ github.repository }}
-          cacheFrom: ghcr.io/${{ github.repository }}:${{ steps.image-and-tag.outputs.tag }}
-
-      - if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
-        name: Publish image to Docker Hub
+      - name: Publish image to Docker Hub
         uses: ./.github/actions/publish-to-dockerhub
         with:
           tag: ${{ steps.image-and-tag.outputs.tag }}
