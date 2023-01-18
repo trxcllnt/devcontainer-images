@@ -26,11 +26,11 @@
     "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {
       "sccacheVersion": "0.4.0-pre.6"
     },
+    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/rust:1": {
       "version": "latest",
       "profile": "minimal"
     },
-    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
   },
@@ -42,8 +42,8 @@
     "ghcr.io/trxcllnt/devcontainer-features/cmake",
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
-    "ghcr.io/trxcllnt/devcontainer-features/rust",
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
+    "ghcr.io/trxcllnt/devcontainer-features/rust",
     "ghcr.io/trxcllnt/devcontainer-features/cuda",
     "ghcr.io/trxcllnt/devcontainer-features/utils",
   ],

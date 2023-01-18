@@ -26,11 +26,12 @@
     "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {
       "sccacheVersion": "0.4.0-pre.6"
     },
+    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/rust:1": {
       "version": "latest",
       "profile": "minimal"
     },
-    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
   },
@@ -42,8 +43,9 @@
     "ghcr.io/trxcllnt/devcontainer-features/cmake",
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
-    "ghcr.io/trxcllnt/devcontainer-features/rust",
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
+    "ghcr.io/trxcllnt/devcontainer-features/rust",
+    "ghcr.io/trxcllnt/devcontainer-features/cuda",
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge",
     "ghcr.io/trxcllnt/devcontainer-features/utils",
   ],
@@ -56,6 +58,7 @@
         "ms-vscode.cpptools",
         "ms-python.python",
         "ms-python.vscode-pylance",
+        "nvidia.nsight-vscode-edition",
         "llvm-vs-code-extensions.vscode-clangd"
       ],
       "settings": {
@@ -66,6 +69,12 @@
         "C_Cpp.intelliSenseEngine": "disabled",
         "C_Cpp.configurationWarnings": "disabled",
         "C_Cpp.autoAddFileAssociations": false,
+        "files.associations": {
+          "*.cu": "cuda-cpp",
+          "*.cuh": "cuda-cpp",
+          "**/libcudacxx/include/**/*": "cpp",
+          "**/libcudacxx-src/include/**/*": "cpp"
+        },
         "python.defaultInterpreterPath": "/opt/conda/bin/python",
         "python.linting.enabled": true,
         "python.linting.pylintEnabled": true,
@@ -78,6 +87,7 @@
         "python.linting.pycodestylePath": "/opt/conda/envs/base/bin/pycodestyle",
         "python.linting.pydocstylePath": "/opt/conda/envs/base/bin/pydocstyle",
         "python.linting.pylintPath": "/opt/conda/envs/base/bin/pylint",
+        "python.terminal.activateEnvironment": false,
         "[c]": {
           "editor.defaultFormatter": "xaver.clang-format"
         },
