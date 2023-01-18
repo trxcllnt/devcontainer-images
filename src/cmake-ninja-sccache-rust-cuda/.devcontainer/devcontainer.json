@@ -26,8 +26,11 @@
     "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {
       "sccacheVersion": "0.4.0-pre.6"
     },
-    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/nvhpc:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/rust:1": {
+      "version": "latest",
+      "profile": "minimal"
+    },
+    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
   },
   "overrideFeatureInstallOrder": [
@@ -38,42 +41,24 @@
     "ghcr.io/trxcllnt/devcontainer-features/cmake",
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
-    "ghcr.io/trxcllnt/devcontainer-features/llvm",
-    "ghcr.io/trxcllnt/devcontainer-features/nvhpc",
+    "ghcr.io/trxcllnt/devcontainer-features/rust",
+    "ghcr.io/trxcllnt/devcontainer-features/cuda",
     "ghcr.io/trxcllnt/devcontainer-features/utils",
   ],
   "customizations": {
     "vscode": {
       "extensions": [
         "twxs.cmake",
-        "xaver.clang-format",
         "cschlosser.doxdocgen",
         "ms-vscode.cpptools",
-        "nvidia.nsight-vscode-edition",
-        "llvm-vs-code-extensions.vscode-clangd"
+        "nvidia.nsight-vscode-edition"
       ],
       "settings": {
-        "C_Cpp.vcpkg.enabled": false,
-        "C_Cpp.formatting": "disabled",
-        "C_Cpp.autocomplete": "disabled",
-        "C_Cpp.errorSquiggles": "disabled",
-        "C_Cpp.intelliSenseEngine": "disabled",
-        "C_Cpp.configurationWarnings": "disabled",
-        "C_Cpp.autoAddFileAssociations": false,
         "files.associations": {
           "*.cu": "cuda-cpp",
           "*.cuh": "cuda-cpp",
           "**/libcudacxx/include/**/*": "cpp",
           "**/libcudacxx-src/include/**/*": "cpp"
-        },
-        "[c]": {
-          "editor.defaultFormatter": "xaver.clang-format"
-        },
-        "[cpp]": {
-          "editor.defaultFormatter": "xaver.clang-format"
-        },
-        "[cuda-cpp]": {
-          "editor.defaultFormatter": "xaver.clang-format"
         }
       }
     }

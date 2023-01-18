@@ -28,6 +28,7 @@
     },
     "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
@@ -39,6 +40,7 @@
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge",
+    "ghcr.io/trxcllnt/devcontainer-features/utils",
   ],
   "customizations": {
     "vscode": {
@@ -53,11 +55,11 @@
       ],
       "settings": {
         "C_Cpp.vcpkg.enabled": false,
-        "C_Cpp.formatting": "Disabled",
-        "C_Cpp.autocomplete": "Disabled",
-        "C_Cpp.errorSquiggles": "Disabled",
-        "C_Cpp.intelliSenseEngine": "Disabled",
-        "C_Cpp.configurationWarnings": "Disabled",
+        "C_Cpp.formatting": "disabled",
+        "C_Cpp.autocomplete": "disabled",
+        "C_Cpp.errorSquiggles": "disabled",
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "C_Cpp.configurationWarnings": "disabled",
         "C_Cpp.autoAddFileAssociations": false,
         "python.defaultInterpreterPath": "/opt/conda/bin/python",
         "python.linting.enabled": true,

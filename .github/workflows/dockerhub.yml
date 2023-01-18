@@ -42,6 +42,7 @@ jobs:
         id: image-dir-and-tag
         with:
           CUDA: "${{ matrix.CUDA }}"
+          RUST: "${{ matrix.RUST }}"
           LLVM: "${{ matrix.LLVM }}"
           NVHPC: "${{ matrix.NVHPC }}"
           MAMBA: "${{ matrix.MAMBA }}"
