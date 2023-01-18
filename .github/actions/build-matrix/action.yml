@@ -2,7 +2,15 @@ name: build-matrix
 
 description: "Determine the build matrix"
 
+inputs:
+  archs_matrix:
+    default: ""
+    type: string
+    required: false
+
 outputs:
+  archs:
+    value: ${{ steps.matrix.outputs.archs }}
   matrix:
     value: ${{ steps.matrix.outputs.matrix }}
 
@@ -13,14 +21,27 @@ runs:
       id: matrix
       shell: bash
       run: |
+        join_with_delimiter() {
+          local IFS='' delim=$1; shift; echo -n "$1"; shift; echo -n "${*/#/$delim}";
+        }
+
+        ARCHS="";
+        archs=();
+        archs+=("amd64");
+        # archs+=("arm64");
+        if [[ "${{ inputs.archs_matrix }}" == true ]]; then
+          ARCHS="ARCH: [$(join_with_delimiter ',' ${archs[@]})]";
+        fi
+        echo "archs=${archs[@]}" | tee -a $GITHUB_OUTPUT;
         echo "matrix=$(
         cat <<EOF | yq -o json --no-colors | jq -c -r -M '.matrix'
         matrix:
-          RUST: ["", "rust"]
           LLVM: ["", "llvm15", "llvmdev"]
+          RUST: ["", "rust"]
           CUDA: ["", "cuda11.8", "cuda12.0"]
           NVHPC: ["", "nvhpc22.11"]
           MAMBA: ["", "mambaforge"]
+          ${ARCHS}
           exclude:
             - { RUST: "rust", NVHPC: "nvhpc22.11" }
             - { RUST: "rust", CUDA: "", LLVM: "", NVHPC: "" }

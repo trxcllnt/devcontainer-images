@@ -3,6 +3,10 @@ name: image-dir-and-tag
 description: "Determine devcontainer dir and image tag"
 
 inputs:
+  ARCH:
+    default: ""
+    type: string
+    required: false
   CUDA:
     type: string
     required: true
@@ -34,6 +38,7 @@ runs:
       name: Determine devcontainer dir and image tag
       shell: bash
       env:
+        ARCH: "${{ inputs.ARCH }}"
         CUDA: "${{ inputs.CUDA }}"
         LLVM: "${{ inputs.LLVM }}"
         RUST: "${{ inputs.RUST }}"
@@ -55,12 +60,13 @@ runs:
 
         echo "build_image=1" >> $GITHUB_OUTPUT;
 
+        arch=${ARCH:+"-${ARCH}"}
         cuda=${CUDA:+"-${CUDA}"}
         llvm=${LLVM:+"-${LLVM}"}
         rust=${RUST:+"-rust"}
         nvhpc=${NVHPC:+"-${NVHPC}"}
         mamba=${MAMBA:+"-mambaforge"}
-        tag="cmake-ninja-sccache${llvm}${rust}${cuda}${nvhpc}${mamba}"
+        tag="cmake-ninja-sccache${llvm}${rust}${cuda}${nvhpc}${mamba}${arch}"
 
         echo "dir=$dir" >> $GITHUB_OUTPUT;
         echo "tag=$tag" >> $GITHUB_OUTPUT;
