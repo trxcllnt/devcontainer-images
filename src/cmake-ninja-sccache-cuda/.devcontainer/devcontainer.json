@@ -27,6 +27,7 @@
       "sccacheVersion": "0.4.0-pre.6"
     },
     "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
@@ -37,6 +38,7 @@
     "ghcr.io/trxcllnt/devcontainer-features/ninja",
     "ghcr.io/trxcllnt/devcontainer-features/sccache",
     "ghcr.io/trxcllnt/devcontainer-features/cuda",
+    "ghcr.io/trxcllnt/devcontainer-features/utils",
   ],
   "customizations": {
     "vscode": {

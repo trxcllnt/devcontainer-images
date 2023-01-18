@@ -6,6 +6,9 @@ inputs:
   CUDA:
     type: string
     required: true
+  RUST:
+    type: string
+    required: true
   LLVM:
     type: string
     required: true
@@ -32,15 +35,17 @@ runs:
       shell: bash
       env:
         CUDA: "${{ inputs.CUDA }}"
+        RUST: "${{ inputs.RUST }}"
         LLVM: "${{ inputs.LLVM }}"
         NVHPC: "${{ inputs.NVHPC }}"
         MAMBA: "${{ inputs.MAMBA }}"
       run: |
         cuda=${CUDA:+"-cuda"}
+        rust=${RUST:+"-rust"}
         llvm=${LLVM:+"-llvm"}
         nvhpc=${NVHPC:+"-nvhpc"}
         mamba=${MAMBA:+"-mambaforge"}
-        dir="cmake-ninja-sccache${llvm}${cuda}${mamba}${nvhpc}"
+        dir="cmake-ninja-sccache${rust}${llvm}${cuda}${mamba}${nvhpc}"
 
         if [[ ! -d "./src/${dir}" ]]; then
           echo "skipping because ! -d ./src/${dir}";
@@ -51,11 +56,11 @@ runs:
         echo "build_image=1" >> $GITHUB_OUTPUT;
 
         cuda=${CUDA:+"-${CUDA}"}
+        rust=${RUST:+"-rust"}
         llvm=${LLVM:+"-${LLVM}"}
         nvhpc=${NVHPC:+"-${NVHPC}"}
         mamba=${MAMBA:+"-mambaforge"}
-        tag="cmake-ninja-sccache${llvm}${cuda}${nvhpc}${mamba}"
-        tag="${tag:-latest}"
+        tag="cmake-ninja-sccache${rust}${llvm}${cuda}${nvhpc}${mamba}"
 
         echo "dir=$dir" >> $GITHUB_OUTPUT;
         echo "tag=$tag" >> $GITHUB_OUTPUT;
