@@ -6,6 +6,9 @@ inputs:
   tag:
     required: true
     description: "Image tag"
+  archs:
+    required: true
+    description: "Image architectures"
   username:
     required: true
     description: "Docker Hub username"
@@ -40,12 +43,11 @@ runs:
 
         docker manifest rm ${name} || true;
 
-        # for arch in amd64 arm64; do
-        for arch in amd64; do
+        for arch in "${{ inputs.archs }}"; do
           # Pull each image locally
-          docker pull --platform linux/${arch} ${from};
+          docker pull --platform linux/${arch} ${from}-${arch};
           # Retag from ghcr.io to docker.io and add -${arch} suffix
-          docker image tag ${from} ${name}-${arch};
+          docker image tag ${from}-${arch} ${name}-${arch};
           # Push platform-specific docker.io image
           docker push ${name}-${arch};
           # Create multiarch manifest and add the retagged image
@@ -69,8 +71,7 @@ runs:
             https://hub.docker.com/v2/users/login/ \
         | jq -r .token)";
 
-        # for arch in amd64 arm64; do
-        for arch in amd64; do
+        for arch in "${{ inputs.archs }}"; do
           curl -i -X DELETE -H "Accept: application/json" -H "Authorization: JWT $DOCKERHUB_TOKEN" \
             "https://hub.docker.com/v2/repositories/${docker_repository}/tags/${tag}-${arch}/";
         done

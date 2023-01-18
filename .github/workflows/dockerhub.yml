@@ -14,6 +14,7 @@ jobs:
     name: Matrix
     runs-on: ubuntu-22.04
     outputs:
+      archs: ${{ steps.matrix.outputs.archs }}
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout ${{ github.repository }}
@@ -57,5 +58,6 @@ jobs:
         uses: ./.github/actions/push-to-dockerhub
         with:
           tag: ${{ steps.image-dir-and-tag.outputs.tag }}
+          archs: ${{ needs.build-matrix.outputs.archs }}
           username: ${{ vars.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}

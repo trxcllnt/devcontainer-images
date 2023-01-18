@@ -14,6 +14,7 @@ jobs:
     name: Matrix
     runs-on: ubuntu-22.04
     outputs:
+      archs: ${{ steps.matrix.outputs.archs }}
       matrix: ${{ steps.matrix.outputs.matrix }}
     steps:
       - name: Checkout ${{ github.repository }}
@@ -23,6 +24,8 @@ jobs:
       - name: Determine the build matrix
         id: matrix
         uses: ./.github/actions/build-matrix
+        with:
+          archs_matrix: 'true'
 
   build-images:
     name: Build
@@ -41,6 +44,7 @@ jobs:
         uses: ./.github/actions/image-dir-and-tag
         id: image-dir-and-tag
         with:
+          ARCH: "${{ matrix.ARCH }}"
           CUDA: "${{ matrix.CUDA }}"
           LLVM: "${{ matrix.LLVM }}"
           RUST: "${{ matrix.RUST }}"
@@ -78,8 +82,7 @@ jobs:
           eventFilterForPush: workflow_dispatch
           imageTag: ${{ steps.image-dir-and-tag.outputs.tag }}
           subFolder: src/${{ steps.image-dir-and-tag.outputs.dir }}
-          platform: linux/amd64
-          # platform: linux/amd64,linux/arm64
+          platform: linux/${{ matrix.ARCH }}
           imageName: ghcr.io/${{ github.repository }}
           cacheFrom: ghcr.io/${{ github.repository }}:${{ steps.image-dir-and-tag.outputs.tag }}
 
