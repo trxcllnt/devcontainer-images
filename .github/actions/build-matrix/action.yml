@@ -27,8 +27,8 @@ runs:
 
         ARCHS="";
         archs=();
-        archs+=("amd64");
-        # archs+=("arm64");
+        # archs+=("amd64");
+        archs+=("arm64");
         if [[ "${{ inputs.archs_matrix }}" == true ]]; then
           ARCHS="ARCH: [$(join_with_delimiter ',' ${archs[@]})]";
         fi
