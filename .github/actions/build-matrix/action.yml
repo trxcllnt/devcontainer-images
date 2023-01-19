@@ -45,8 +45,6 @@ runs:
           exclude:
             - { RUST: "rust", NVHPC: "nvhpc22.11" }
             - { RUST: "rust", CUDA: "", LLVM: "", NVHPC: "" }
-            - { RUST: "rust", CUDA: "", LLVM: "llvm15", MAMBA: "" }
-            - { RUST: "rust", CUDA: "", LLVM: "llvmdev", MAMBA: "" }
             - { NVHPC: "nvhpc22.11",        MAMBA: "mambaforge" }
             - { CUDA: "",         LLVM: "", MAMBA: "mambaforge" }
             - { CUDA: "cuda11.8", LLVM: "", NVHPC: "nvhpc22.11" }
