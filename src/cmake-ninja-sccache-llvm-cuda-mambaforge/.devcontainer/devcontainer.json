@@ -17,20 +17,16 @@
     },
     "ghcr.io/devcontainers/features/git-lfs:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/gitlab-cli:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/cmake:1": {
-      "cmakeVersion": "3.25.1"
+    "ghcr.io/trxcllnt/devcontainer-features/gitlab-cli:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/cmake:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/ninja:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/sccache:2": {
+      "version": "0.4.0-pre.6"
     },
-    "ghcr.io/trxcllnt/devcontainer-features/ninja:1": {
-      "ninjaVersion": "1.11.1"
-    },
-    "ghcr.io/trxcllnt/devcontainer-features/sccache:1": {
-      "sccacheVersion": "0.4.0-pre.6"
-    },
-    "ghcr.io/trxcllnt/devcontainer-features/llvm:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/cuda:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/mambaforge:1": {},
-    "ghcr.io/trxcllnt/devcontainer-features/utils:1": {},
+    "ghcr.io/trxcllnt/devcontainer-features/llvm:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/cuda:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/mambaforge:2": {},
+    "ghcr.io/trxcllnt/devcontainer-features/utils:2": {}
   },
   "overrideFeatureInstallOrder": [
     "ghcr.io/devcontainers/features/common-utils",
@@ -44,57 +40,6 @@
     "ghcr.io/trxcllnt/devcontainer-features/llvm",
     "ghcr.io/trxcllnt/devcontainer-features/cuda",
     "ghcr.io/trxcllnt/devcontainer-features/mambaforge",
-    "ghcr.io/trxcllnt/devcontainer-features/utils",
-  ],
-  "customizations": {
-    "vscode": {
-      "extensions": [
-        "twxs.cmake",
-        "xaver.clang-format",
-        "cschlosser.doxdocgen",
-        "ms-vscode.cpptools",
-        "ms-python.python",
-        "ms-python.vscode-pylance",
-        "nvidia.nsight-vscode-edition",
-        "llvm-vs-code-extensions.vscode-clangd"
-      ],
-      "settings": {
-        "C_Cpp.vcpkg.enabled": false,
-        "C_Cpp.formatting": "disabled",
-        "C_Cpp.autocomplete": "disabled",
-        "C_Cpp.errorSquiggles": "disabled",
-        "C_Cpp.intelliSenseEngine": "disabled",
-        "C_Cpp.configurationWarnings": "disabled",
-        "C_Cpp.autoAddFileAssociations": false,
-        "files.associations": {
-          "*.cu": "cuda-cpp",
-          "*.cuh": "cuda-cpp",
-          "**/libcudacxx/include/**/*": "cpp",
-          "**/libcudacxx-src/include/**/*": "cpp"
-        },
-        "python.defaultInterpreterPath": "/opt/conda/bin/python",
-        "python.linting.enabled": true,
-        "python.linting.pylintEnabled": true,
-        "python.formatting.autopep8Path": "/opt/conda/envs/base/bin/autopep8",
-        "python.formatting.blackPath": "/opt/conda/envs/base/bin/black",
-        "python.formatting.yapfPath": "/opt/conda/envs/base/bin/yapf",
-        "python.linting.banditPath": "/opt/conda/envs/base/bin/bandit",
-        "python.linting.flake8Path": "/opt/conda/envs/base/bin/flake8",
-        "python.linting.mypyPath": "/opt/conda/envs/base/bin/mypy",
-        "python.linting.pycodestylePath": "/opt/conda/envs/base/bin/pycodestyle",
-        "python.linting.pydocstylePath": "/opt/conda/envs/base/bin/pydocstyle",
-        "python.linting.pylintPath": "/opt/conda/envs/base/bin/pylint",
-        "python.terminal.activateEnvironment": false,
-        "[c]": {
-          "editor.defaultFormatter": "xaver.clang-format"
-        },
-        "[cpp]": {
-          "editor.defaultFormatter": "xaver.clang-format"
-        },
-        "[cuda-cpp]": {
-          "editor.defaultFormatter": "xaver.clang-format"
-        }
-      },
-    }
-  },
+    "ghcr.io/trxcllnt/devcontainer-features/utils"
+  ]
 }
