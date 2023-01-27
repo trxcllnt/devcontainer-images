@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: build-images-on-${{ github.event_name }}-from-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+
+  matrix:
+    name: Determine build matrix
+    runs-on: ubuntu-22.04
+    outputs:
+      matrix: ${{ steps.matrix.outputs.matrix }}
+    steps:
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+      - name: Determine the build matrix
+        id: matrix
+        uses: ./.github/actions/build-matrix
+
+  build-and-maybe-push-images:
+    needs: matrix
+    name: Build
+    uses: ./.github/workflows/build-and-maybe-push-images.yml
+    secrets: inherit
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.matrix) }}
+    with:
+      CUDA: "${{ matrix.CUDA }}"
+      LLVM: "${{ matrix.LLVM }}"
+      RUST: "${{ matrix.RUST }}"
+      NVHPC: "${{ matrix.NVHPC }}"
+      MAMBA: "${{ matrix.MAMBA }}"
+      push: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}

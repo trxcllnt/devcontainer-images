@@ -1,0 +1,88 @@
+name: "Build devcontainer images"
+
+on:
+  workflow_call:
+    inputs:
+      CUDA:
+        type: string
+        required: true
+      LLVM:
+        type: string
+        required: true
+      RUST:
+        type: string
+        required: true
+      NVHPC:
+        type: string
+        required: true
+      MAMBA:
+        type: string
+        required: true
+      push:
+        type: boolean
+        default: false
+        description: "Push images to GitHub container registry"
+
+jobs:
+
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    permissions:
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [amd64, arm64]
+    steps:
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Determine devcontainer dir and image tag
+        uses: ./.github/actions/image-dir-and-tag
+        id: image-dir-and-tag
+        with:
+          CUDA: "${{ inputs.CUDA }}"
+          LLVM: "${{ inputs.LLVM }}"
+          RUST: "${{ inputs.RUST }}"
+          NVHPC: "${{ inputs.NVHPC }}"
+          MAMBA: "${{ inputs.MAMBA }}"
+
+      - name: Build ${{ steps.image-dir-and-tag.outputs.tag }}-${{ matrix.arch }}
+        uses: ./.github/actions/build-image
+        with:
+          push: ${{ inputs.push }}
+          arch: "${{ matrix.arch }}"
+          dir: "${{ steps.image-dir-and-tag.outputs.dir }}"
+          tag: "${{ steps.image-dir-and-tag.outputs.tag }}"
+
+  push:
+    if: inputs.push
+    needs: build
+    name: Push
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout ${{ github.repository }}
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
+
+      - name: Determine devcontainer dir and image tag
+        uses: ./.github/actions/image-dir-and-tag
+        id: image-dir-and-tag
+        with:
+          CUDA: "${{ inputs.CUDA }}"
+          LLVM: "${{ inputs.LLVM }}"
+          RUST: "${{ inputs.RUST }}"
+          NVHPC: "${{ inputs.NVHPC }}"
+          MAMBA: "${{ inputs.MAMBA }}"
+
+      - name: Push multiarch manifest to Docker Hub
+        uses: ./.github/actions/push-to-dockerhub
+        with:
+          archs: "amd64 arm64"
+          tag: "${{ steps.image-dir-and-tag.outputs.tag }}"
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
