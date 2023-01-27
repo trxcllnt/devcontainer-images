@@ -4,9 +4,11 @@ description: "Retag and publish image to Docker Hub"
 
 inputs:
   tag:
+    type: string
     required: true
     description: "Image tag"
   archs:
+    type: string
     required: true
     description: "Image architectures"
   username:
@@ -19,6 +21,7 @@ inputs:
 runs:
   using: composite
   steps:
+
     - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
@@ -46,14 +49,19 @@ runs:
         for arch in "${{ inputs.archs }}"; do
           # Pull each image locally
           docker pull --platform linux/${arch} ${from}-${arch};
+
           # Retag from ghcr.io to docker.io and add -${arch} suffix
           docker image tag ${from}-${arch} ${name}-${arch};
+
           # Push platform-specific docker.io image
           docker push ${name}-${arch};
+
           # Create multiarch manifest and add the retagged image
           docker manifest create ${name} --amend ${name}-${arch};
+
           # Annotate that this image is the ${arch} version
           docker manifest annotate ${name} ${name}-${arch} --arch ${arch};
+
           # Remove all images to conserve disk space
           docker rmi $(docker image ls -aq) || true;
           docker system prune -f;
@@ -64,14 +72,15 @@ runs:
 
         # Remove the arch-specific tags and just leave the multiarch manifest
         DOCKERHUB_TOKEN="$(
-          curl -s \
+          curl -s -X POST \
             -H "Content-Type: application/json" \
-            -X POST \
             -d "{\"username\": \"${registry_username}\", \"password\": \"${registry_password}\"}" \
             https://hub.docker.com/v2/users/login/ \
         | jq -r .token)";
 
         for arch in "${{ inputs.archs }}"; do
-          curl -i -X DELETE -H "Accept: application/json" -H "Authorization: JWT $DOCKERHUB_TOKEN" \
+          curl -i -X DELETE \
+            -H "Accept: application/json" \
+            -H "Authorization: JWT $DOCKERHUB_TOKEN" \
             "https://hub.docker.com/v2/repositories/${docker_repository}/tags/${tag}-${arch}/";
         done

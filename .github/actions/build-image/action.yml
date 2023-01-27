@@ -1,0 +1,74 @@
+name: build-devcontainer-image
+
+description: "Build devcontainer image"
+
+inputs:
+  dir:
+    type: string
+    required: true
+    description: "Image dir"
+  tag:
+    type: string
+    required: true
+    description: "Image tag"
+  arch:
+    type: string
+    required: true
+    description: "Image arch"
+  push:
+    type: boolean
+    default: false
+    description: "Push image to GitHub container registry"
+
+runs:
+  using: composite
+  steps:
+    - name: Set environment
+      shell: bash
+      run: |
+        if [[ '${{ inputs.push }}' == 'true' ]]; then
+          echo "push=always" >> $GITHUB_ENV;
+        else
+          echo "push=never" >> $GITHUB_ENV;
+        fi
+
+    - name: Free up disk space
+      uses: ./.github/actions/free-disk-space
+      with:
+        home: "${{ env.HOME }}"
+        tool_cache: "${{ runner.tool_cache }}"
+
+    - name: Set up QEMU
+      if: contains(inputs.arch, 'arm64')
+      uses: docker/setup-qemu-action@v2
+
+    - name: Setup Docker buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+        use: true
+
+    - name: Login to ghcr.io
+      if: env.push == 'always'
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ github.token }}
+
+    - name: Cache devcontainer user data folder
+      uses: actions/cache@v3
+      with:
+        key: ${{ inputs.tag }}-${{ inputs.arch }}-userdata
+        path: ${{ runner.temp }}/${{ inputs.tag }}-${{ inputs.arch }}-userdata
+
+    - name: Build ghcr.io/${{ github.repository }}:${{ inputs.tag }}-${{ inputs.arch }}
+      uses: devcontainers/ci@v0.2
+      with:
+        push: "${{ env.push }}"
+        skipContainerUserIdUpdate: true
+        platform: linux/${{ inputs.arch }}
+        subFolder: src/${{ inputs.dir }}
+        imageName: ghcr.io/${{ github.repository }}
+        imageTag: ${{ inputs.tag }}-${{ inputs.arch }}
+        cacheFrom: ghcr.io/${{ github.repository }}:${{ inputs.tag }}-${{ inputs.arch }}
+        userDataFolder: ${{ runner.temp }}/${{ inputs.tag }}-${{ inputs.arch }}-userdata
